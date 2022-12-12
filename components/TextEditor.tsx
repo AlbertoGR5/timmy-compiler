@@ -12,7 +12,7 @@ export const TextEditor = (props: any, monaco: Monaco) => {
 
     const { editor, saveFiles, setSaveFiles, files, index, display, onChange } =
         props;
-    const [code, setCode] = useState("// some comment");
+    const [code, setCode] = useState(" ");
 
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // here is the editor instance
@@ -37,7 +37,7 @@ export const TextEditor = (props: any, monaco: Monaco) => {
                     height={"100%"}
                     theme="vs-dark"
                     defaultLanguage="javascript"
-                    defaultValue="// some comment"
+                    defaultValue=" "
                     value={code}
                     onChange={async (txt) =>
                         onChange(

@@ -1,9 +1,9 @@
 import { IErrors } from "../interfaces/messages"
 export const mErrors: any = {
-    suportedCharacters: { error: '', message: `character is not a valid character`, description: 'Valid characters: a-z, A-Z, 0-9, (, ), {, }, [, ], ., ,, ;, :, +, -, *, /, =, >, <, !, &, |, ?, `, ", %, $', line: 0, column: 0 },
-    startProgram: { error: 'startExec', message: `is missing and required at program startup`, description: 'startExec is missing', line: '?', column: '?' },
-    endProgram: { error: 'endExec', message: `is missing and required at program end`, description: 'endExec is missing', line: '?', column: '?' },
-    startDef: { error: 'startDef', message: `is missing and required after starting program "startExec"`, description: 'startDef is missing', line: '?', column: '?' },
-    endDef: { error: 'endDef', message: `is missing and is required at the end of the variable area`, description: 'endDef is missing', line: '?', column: '?' },
-    startBody: { error: 'startBody', message: `is missing and required at the start of the code zone`, description: 'startBody is missing', line: '?', column: '?' },
+    suportedCharacters: { error: '', message: `El caracter no es valido`, description: 'Caracteres validos: a-z, A-Z, 0-9, (, ), {, }, [, ], ., ,, ;, :, +, -, *, /, =, >, <, !, &, |, ?, `, ", %, $', line: 0, column: 0 },
+    startProgram: { error: 'inicioProcess', message: `se requiere el inicio del programa`, description: 'inicioProcesstartExec is missing', line: '?', column: '?' },
+    startDef: { error: 'definicion', message: `se requiere inicio de la zona de variables`, description: 'startDef is missing', line: '?', column: '?' },
+    endDef: { error: 'finDefinicion', message: `se requiere fin de la zona de variables`, description: 'endDef is missing', line: '?', column: '?' },
+    startBody: { error: 'comienzoBody', message: `se requiere inicio del codigo`, description: 'startBody is missing', line: '?', column: '?' },
+    endProgram: { error: 'finProcess', message: `se requiere el fin del programa`, description: 'endExec is missing', line: '?', column: '?' },
 }

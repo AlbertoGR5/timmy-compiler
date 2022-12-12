@@ -10,8 +10,10 @@ import Editor, { Monaco } from "@monaco-editor/react";
 
 import play from "../public/images/compilar.png";
 import stop from "../public/images/parar.png";
-import terminal from "../public/svgs/terminal.svg";
+import terminal from "../public/images/terminal.png";
 import plus from "../public/images/agregar.png";
+import crear from "../public/images/nuevoarchivo.png";
+import headerv from "../public/images/compilador.png";
 import { IErrors, IWarnings } from "../interfaces/messages";
 
 import { analize } from "../services/language";
@@ -141,52 +143,41 @@ export default function Home() {
             <header className={styles.header}>
                 <div className={styles.titleheader}>
                     <div className={styles.fileDiv}>
-                        <video className={styles.headerv} src="../public/images/Compilador.mp4" autoPlay loop muted></video>
+                        <p className={styles.titlev}>Compiler</p>
                     </div>
-                </div>
-                <div className={styles.controllers}>
-                    <input
-                        type="file"
-                        onChange={handleFileInput}
-                        id="file"
-                        className={styles.inputfile}
-                    />
-                    <label htmlFor="file">
-                        <Image src={plus} alt="" width="30" />
-                    </label>
-                    <Image
-                        src={play}
-                        alt=""
-                        width="30"
-                        onClick={(e) => handleAnalizeCode()}
-                    />
-                    <Image src={stop} alt="" width="30" />
-                    <Image
-                        src={terminal}
-                        alt=""
-                        onClick={(e) => handleShowTerminal()}
-                        width="30"
-                    />
                 </div>
             </header>
 
             <main>
                 <div className={styles.center}>
                     <div className={styles.explorer}>
-                        <span
+                        <Image
+                            src={crear}
+                            alt=""
+                            width="60"
                             onClick={(e) => newFile()}
-                            className={styles.newFile}
-                        >
-                            Crear nuevo Archivo
-                        </span>
-                        <h3 className={styles.h3}>Explorer</h3>
-                        <button
-                            onClick={(e) =>
-                                handleColapseList(colapseOpens, setColapseOpens)
-                            }
-                        >
-                            {colapseOpens} EDITORES ABIERTOS
-                        </button>
+                        />
+                        <input
+                            type="file"
+                            onChange={handleFileInput}
+                            id="file"
+                            className={styles.inputfile}
+                        />
+                        <label htmlFor="file">
+                            <Image src={plus} alt="" width="60" />
+                        </label>
+                        <Image
+                            src={play}
+                            alt=""
+                            width="60"
+                            onClick={(e) => handleAnalizeCode()}
+                        />
+                        <Image
+                            src={terminal}
+                            alt=""
+                            onClick={(e) => handleShowTerminal()}
+                            width="60"
+                        />
                         <div
                             className={
                                 colapseOpens === ">" ? styles.hide : styles.show
@@ -243,12 +234,11 @@ export default function Home() {
             {files[0] && showTerminal && (
                 <div className={styles.terminal}>
                     <div className={styles.code}>
-                        <span>Terminal</span>
                         <div>
-                            <span>Codigo procesado.</span>
-                            <div>
+                            <span>Resultado del codigo</span>
+                            <div className="codespan">
                                 <span>
-                                    {results?.textProcessed ? results.textProcessed : "En espera..."}
+                                    {results?.textProcessed ? results.textProcessed : "Esperando el codigo"}
                                 </span>
                                 <br />
                             </div>
@@ -261,8 +251,6 @@ export default function Home() {
                                                     <th>Error</th>
                                                     <th>Mensaje</th>
                                                     <th>Linea</th>
-                                                    <th>Columna</th>
-                                                    <th>Descripcion</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -271,8 +259,6 @@ export default function Home() {
                                                         <td>{error.error}</td>
                                                         <td>{error.message}</td>
                                                         <td>{error.line}</td>
-                                                        <td>{error.column}</td>
-                                                        <td>{error.description}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
