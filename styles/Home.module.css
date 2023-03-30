@@ -157,7 +157,8 @@
   font-size: 2rem;
   margin: 0 auto;
   border-right: 0.15em solid white;
-  animation: typing 2s steps(10) 1s 1 normal both, blink 1s steps(1) infinite;
+  animation: typing 7s steps(9) 1s infinite alternate both, blink 1s steps(10) infinite;
+
 }
 
 @keyframes typing {

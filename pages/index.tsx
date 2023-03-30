@@ -1,12 +1,10 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react-hooks/exhaustive-deps */
-import fs from "fs";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { TextEditor } from "../components/TextEditor";
 import styles from "../styles/Home.module.css";
-import { FileUploaded } from "../components/FileUploaded";
-import Editor, { Monaco } from "@monaco-editor/react";
 
 import play from "../public/images/compilar.png";
 import stop from "../public/images/parar.png";
@@ -16,7 +14,7 @@ import crear from "../public/images/nuevoarchivo.png";
 import headerv from "../public/images/compilador.png";
 import { IErrors, IWarnings } from "../interfaces/messages";
 
-import { analize } from "../services/language";
+import { validate } from "../hooks/syntatic";
 import React from "react";
 
 interface IFile {
@@ -36,7 +34,7 @@ export default function Home() {
     const [linea, setLinea] = useState(0);
     const [columna, setColumna] = useState(0);
 
-    const [results, setResults] = useState<IResults>();
+    const [errors, setErrors] = useState<any[]>([]);
 
     const [colapseOpens, setColapseOpens] = useState(">");
     const [colapseFolders, setColapseFolders] = useState(">");
@@ -47,6 +45,14 @@ export default function Home() {
     const [saveFiles, setSaveFiles] = useState<any>([]);
 
     const [files, setFiles] = useState<IFile[]>([]);
+
+    const compiler = (text: string) => {
+        text = text.replace(/\r\n/g, "\n");
+        console.log(text);
+        const syntactic = validate(text);
+        const listOfErrors = syntactic;
+        setErrors(listOfErrors);
+    };
 
     const [inputChangeName, setInputChangeName] = useState<boolean[]>();
 
@@ -98,8 +104,7 @@ export default function Home() {
     const handleAnalizeCode = () => {
         if (files[selectedFile]) {
             setShowTerminal(true);
-            const results = analize(files[selectedFile].text);
-            setResults(results);
+            compiler(files[selectedFile].text);
         }
     };
 
@@ -143,7 +148,7 @@ export default function Home() {
             <header className={styles.header}>
                 <div className={styles.titleheader}>
                     <div className={styles.fileDiv}>
-                        <p className={styles.titlev}>Compiler</p>
+                        <p className={styles.titlev}>Compiler.</p>
                     </div>
                 </div>
             </header>
@@ -234,42 +239,33 @@ export default function Home() {
             {files[0] && showTerminal && (
                 <div className={styles.terminal}>
                     <div className={styles.code}>
+                        <span>Terminal</span>
                         <div>
-                            <span>Resultado del codigo</span>
-                            <div className="codespan">
+                            <span>Codigo procesado.</span>
+                            <div>
                                 <span>
-                                    {results?.textProcessed ? results.textProcessed : "Esperando el codigo"}
+                                    <b>Archivo: </b> {files[selectedFile].name}
                                 </span>
                                 <br />
                             </div>
                             <div className={styles.tableStyle}>
-                                {results && results?.errors.length > 0 ? (
+                                {errors && errors.length > 0 ? (
                                     <React.Fragment>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Error</th>
-                                                    <th>Mensaje</th>
-                                                    <th>Linea</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {results.errors.map((error: IErrors, index: number) => (
-                                                    <tr key={index}>
-                                                        <td>{error.error}</td>
-                                                        <td>{error.message}</td>
-                                                        <td>{error.line}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table><br /></React.Fragment>) : "Sin Errores"}
+                                        {errors.map(
+                                            (error: any, index: number) => (
+                                                <span key={index}>{error}</span>
+                                            )
+                                        )}
+                                        <br />
+                                    </React.Fragment>
+                                ) : (
+                                    "Sin Errores"
+                                )}
                             </div>
-
                         </div>
                     </div>
                 </div>
-            )
-            }
+            )}
         </div >
     );
 }
