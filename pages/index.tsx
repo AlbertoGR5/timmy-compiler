@@ -241,13 +241,6 @@ export default function Home() {
                     <div className={styles.code}>
                         <span>Terminal</span>
                         <div>
-                            <span>Codigo procesado.</span>
-                            <div>
-                                <span>
-                                    <b>Archivo: </b> {files[selectedFile].name}
-                                </span>
-                                <br />
-                            </div>
                             <div className={styles.tableStyle}>
                                 {errors && errors.length > 0 ? (
                                     <React.Fragment>

@@ -30,32 +30,33 @@ const lexer = moo.compile({
     singleLineComment: /\/\/.*/,
     multiLineComment: /\/\*[\s\S]*?\*\//,
     newline: { match: /\n/, lineBreaks: true },
-    aquies: /\baquies\s*\b/,
-    definelas: /definelas\s*/,
-    Digito: /\bDigito\s+\w+\s*=\s*\d+\b/,
-    Letrillas: /\bLetrillas\s+\w+\s*=\s*'[^']*'/,
+    init: /\binit\s*\b/,
+    vars: /vars\s*/,
+    Num: /\bNum\s+\w+\s*=\s*\d+\b/,
+    String: /\bString\s+\w+\s*=\s*'[^']*'/,
     value: /'[^']*'|"[^"]*"|\d+/,
     comma: /,/,
-    empezando: /\bempezando\s*/,
-    print: /\s*print\s*\(\s*(?:[a-zA-Z]\w*\s*\+\s*)*[a-zA-Z]\w*\s*(?:\s*\+\s*(?:\d+|[a-zA-Z]\w*)|\s*,\s*(?:\d+|[a-zA-Z]\w*)\s*)*\)/,
+    body: /\bbody\s*/,
+    log: /\s*log\s*\(\s*(?:[a-zA-Z]\w*\s*\+\s*)*[a-zA-Z]\w*\s*(?:\s*\+\s*(?:\d+|[a-zA-Z]\w*)|\s*,\s*(?:\d+|[a-zA-Z]\w*)\s*)*\)/,
     semicolon: /;/,
     if: /if\s*\(\s*(?:\w+)\s*(?:[<>=!]+)\s*(?:\w+)\s*\)\s*\{(?:[\s\S]*?)\}/,
-    for: /for\s*\{(?:[\s\S]*?)\}/,
-    aquifue: /\baquifue\s*/,
+    rpt: /rpt\s*\{(?:[\s\S]*?)\}/,
+
+    end: /\bend\s*/,
     // sum: /\b\d+\s*\+\s*\d+\b|\b[a-zA-Z]\w*\s*\+\s*[a-zA-Z]\w*\b/,
-    // ident: /(?!(?:aquies|definelas|empezando|print|rpt|aquifue)\b)[a-zA-Z]\w*/,
-    digito: /\bdigito\b/,
-    letrillas: /\bletrillas\b/,
+    // ident: /(?!(?:init|vars|body|log|rpt|end)\b)[a-zA-Z]\w*/,
+    num: /\bnum\b/,
+    str: /\bstr\b/,
 });
 
-const validatedefinelas = (code: String | undefined, txt: any) => {
-    const errordefinelas = [];
+const validateVars = (code: string | undefined, txt: any) => {
+    const errorVars = [];
     let tokens: any[] = [];
     try {
         lexer.reset(code);
         tokens = Array.from(lexer);
     } catch (error: any) {
-        errordefinelas.push(error.message);
+        errorVars.push(error.message);
         lexer.next();
         lexer.reset(code);
         while (true) {
@@ -66,7 +67,7 @@ const validatedefinelas = (code: String | undefined, txt: any) => {
                 }
                 tokens.push(token);
             } catch (e: any) {
-                errordefinelas.push(e.message);
+                errorVars.push(e.message);
                 break;
             }
         }
@@ -75,12 +76,12 @@ const validatedefinelas = (code: String | undefined, txt: any) => {
     let variables = {} as unknown as any;
 
     for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i].type === "Digito" || tokens[i].type === "Letrillas") {
+        if (tokens[i].type === "Num" || tokens[i].type === "String") {
             const varName = tokens[i].value.split(" ")[1];
             const varType = tokens[i].type;
             const varValue = tokens[i].value.split(" ")[3];
             if (variables[varName]) {
-                errordefinelas.push(
+                errorVars.push(
                     findErrorLine(
                         txt,
                         varName,
@@ -94,11 +95,11 @@ const validatedefinelas = (code: String | undefined, txt: any) => {
                 value: varValue,
             };
         }
-        if (tokens[i].type === "empezando") {
+        if (tokens[i].type === "body") {
             break;
         }
     }
-    return [errordefinelas, variables];
+    return [errorVars, variables];
 };
 
 interface Variables {
@@ -108,7 +109,7 @@ interface Variables {
     };
 }
 
-const validateempezando = (
+const validateBody = (
     code: string | undefined,
     txt: any,
     variables: Variables | null
@@ -145,30 +146,32 @@ const validateempezando = (
             tokens[i].type === "newline" ||
             tokens[i].type === "comma" ||
             tokens[i].type === "semicolon" ||
-            tokens[i].type === "Digito" ||
-            tokens[i].type === "Letrillas" ||
+            tokens[i].type === "Num" ||
+            tokens[i].type === "String" ||
             tokens[i].type === "value" ||
             tokens[i].type === "plus" ||
-            tokens[i].type === "Digito" ||
-            tokens[i].type === "letrillas" ||
-            tokens[i].type === "aquies" ||
-            tokens[i].type === "definelas" ||
-            tokens[i].type === "empezando" ||
-            tokens[i].type === "aquifue"
+            tokens[i].type === "num" ||
+            tokens[i].type === "str" ||
+            tokens[i].type === "init" ||
+            tokens[i].type === "vars" ||
+            tokens[i].type === "body" ||
+            tokens[i].type === "end" ||
+            tokens[i].type === "rpt" ||
+            tokens[i].type === "if"
         ) {
             continue;
-        } else if (tokens[i].type === "print") {
+        } else if (tokens[i].type === "log") {
             // ...
-            const definelas = tokens[i].value
+            const vars = tokens[i].value
                 .replace(/\s/g, "")
                 .match(/\(([^)]+)\)/)[1]
                 .split(/[\+\-\*\/,]/g)
                 .map((valor: any) => valor.trim());
             const aritmetics = tokens[i].value
                 .replace(/\s/g, "")
-                .match(/print\(([^,]+),\s*([^)]+)\)/);
+                .match(/log\(([^,]+),\s*([^)]+)\)/);
             console.log(aritmetics);
-            definelas.forEach((varName: any) => {
+            vars.forEach((varName: any) => {
                 const name = varName.replace(/['"]+/g, "");
                 if (variables && !variables[name]) {
                     errors.push(
@@ -182,33 +185,35 @@ const validateempezando = (
             });
             if (aritmetics) {
                 const variable = aritmetics[1]; // 'txt2'
-                const operation = aritmetics[2]; // 'Digito + Digito2'
+                const operation = aritmetics[2]; // 'num + num2'
                 const variablesUsed = operation
                     .split(/[\+\-\*\/]/g)
-                    .map((value: any) => value.trim()); // ['Digito', 'Digito2']
+                    .map((value: any) => value.trim()); // ['num', 'num2']
 
                 for (const varName of variablesUsed) {
                     const name = varName.replace(/['"]+/g, "");
-                    console.log(variables && variables[name].type);
                     if (
                         variables &&
                         variables[name] &&
-                        variables[name].type !== "Digito"
+                        variables[name].type !== "Num"
                     ) {
-                        errors.push(`Variable ${name} is not of type Digito`);
+                        errors.push(`Variable ${name} is not of type Num`);
                         continue;
                     }
                 }
             }
         } else if (tokens[i].type === "rpt") {
             // ...
+            console.log(tokens[i]);
+        } else if (tokens[i].type === "if") {
+            console.log(tokens[i]);
         } else {
             console.log(tokens[i]);
             errors.push(
                 findErrorLine(
                     txt,
                     tokens[i].value,
-                    "Invalid statement on line: "
+                    "Invalid declaracion on line: "
                 )
             );
             continue;
@@ -220,38 +225,38 @@ const validateempezando = (
 
 const validateCode = (code: string) => {
     let txt = code.replace(/\r\n/g, "\n");
-    const [errordefinelas, variables] = validatedefinelas(code, txt);
+    const [errorVars, variables] = validateVars(code, txt);
 
-    console.log(errordefinelas);
+    console.log(errorVars);
 
-    const empezandoErrors = validateempezando(code, txt, variables);
+    const bodyErrors = validateBody(code, txt, variables);
 
-    const regex = /(aquies[\s\S]*definelas[\s\S]*empezando[\s\S]*aquifue)/;
+    const regex = /(init[\s\S]*vars[\s\S]*body[\s\S]*end)/;
     const result = txt.match(regex);
     if (result) {
-        const aquies = /\baquies\s*\b/.test(result[0]);
-        const definelas = /\bdefinelas\s*\b/.test(result[0]);
-        const empezando = /\bempezando\s*\b/.test(result[0]);
-        const aquifue = /\baquifue\s*\b/.test(result[0]);
-        if (!aquies) {
-            errordefinelas.push("Missing aquies statement");
+        const init = /\binit\s*\b/.test(result[0]);
+        const vars = /\bvars\s*\b/.test(result[0]);
+        const body = /\bbody\s*\b/.test(result[0]);
+        const end = /\bend\s*\b/.test(result[0]);
+        if (!init) {
+            errorVars.push("Falta init declaracion");
         }
-        if (!definelas) {
-            errordefinelas.push("Missing definelas statement");
+        if (!vars) {
+            errorVars.push("Falta vars declaracion");
         }
-        if (!empezando) {
-            errordefinelas.push("Missing empezando statement");
+        if (!body) {
+            errorVars.push("Falta body declaracion");
         }
-        if (!aquifue) {
-            errordefinelas.push("Missing aquifue statement");
+        if (!end) {
+            errorVars.push("Falta end declaracion");
         }
     } else {
-        errordefinelas.push(
-            "Missing aquies, definelas, empezando or aquifue statement, remember to use the correct order"
+        errorVars.push(
+            "Falta init, vars, body o end declaracion, recuerda usar el orden correcto"
         );
     }
 
-    return errordefinelas.concat(empezandoErrors);
+    return errorVars.concat(bodyErrors);
 };
 
 export const validate = (code: any) => {
@@ -260,7 +265,6 @@ export const validate = (code: any) => {
         console.log("Syntax validation successful");
         return null;
     } else {
-        console.log("Error(s) found:");
         console.log(errors);
         console.log(errors.join("\n"));
         return errors.filter((value: any, index: any) => {
